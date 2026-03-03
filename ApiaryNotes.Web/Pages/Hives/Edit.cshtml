@@ -1,0 +1,31 @@
+﻿@page
+@model ApiaryNotes.Web.Pages.Hives.EditModel
+@{
+    ViewData["Title"] = "Redaguoti avilį";
+}
+
+<h1>Redaguoti avilį (@Model.ApiaryName)</h1>
+
+<form method="post">
+    <div class="text-danger" asp-validation-summary="All"></div>
+    <input type="hidden" asp-for="ApiaryId" />
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label class="form-label">Pavadinimas</label>
+        <input class="form-control" asp-for="Input.Code" />
+        <span class="text-danger" asp-validation-for="Input.Code"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Tipas</label>
+        <input class="form-control" asp-for="Input.HiveType" />
+    </div>
+
+    <button class="btn btn-primary" type="submit">Išsaugoti</button>
+    <a class="btn btn-secondary" asp-page="Index" asp-route-apiaryId="@Model.ApiaryId">Atgal</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

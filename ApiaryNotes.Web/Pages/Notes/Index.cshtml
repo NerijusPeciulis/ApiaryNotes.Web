@@ -1,0 +1,60 @@
+﻿@page
+@model ApiaryNotes.Web.Pages.Notes.IndexModel
+@{
+    ViewData["Title"] = "Užrašai";
+}
+
+<h1>Užrašai: @Model.ApiaryName / @Model.HiveCode</h1>
+
+<p>
+    
+    <a class="btn btn-primary"
+       asp-page="Create"
+       asp-route-apiaryId="@Model.ApiaryId"
+       asp-route-hiveId="@Model.HiveId">+ Naujas užrašas</a>
+
+    <a class="btn btn-secondary"
+       asp-page="/Hives/Index"
+       asp-route-apiaryId="@Model.ApiaryId">Atgal į avilius</a>
+</p>
+
+@if (Model.Notes.Count == 0)
+{
+    <p>Kol kas nėra užrašų.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Pavadinimas</th>
+                <th>Tekstas</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var n in Model.Notes)
+            {
+                <tr>
+                    <td>@n.Date</td>
+                    <td>@(string.IsNullOrWhiteSpace(n.Title) ? "-" : n.Title)</td>
+                    <td>@(n.Text.Length > 60 ? n.Text.Substring(0, 60) + "..." : n.Text)</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-secondary"
+                           asp-page="Edit"
+                           asp-route-id="@n.Id"
+                           asp-route-apiaryId="@Model.ApiaryId"
+                           asp-route-hiveId="@Model.HiveId">Redaguoti</a>
+
+                        <a class="btn btn-sm btn-outline-danger"
+                           asp-page="Delete"
+                           asp-route-id="@n.Id"
+                           asp-route-apiaryId="@Model.ApiaryId"
+                           asp-route-hiveId="@Model.HiveId">Trinti</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

@@ -1,0 +1,38 @@
+﻿@page
+@model ApiaryNotes.Web.Pages.Notes.CreateModel
+@{
+    ViewData["Title"] = "Naujas užrašas";
+}
+
+<h1>Naujas užrašas (@Model.ApiaryName / @Model.HiveCode)</h1>
+
+<form method="post">
+    <input type="hidden" asp-for="ApiaryId" />
+    <input type="hidden" asp-for="HiveId" />
+   
+    <div class="mb-3">
+        <label class="form-label">Data</label>
+        <input class="form-control" asp-for="Input.Date" type="date" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Pavadinimas</label>
+        <input class="form-control" asp-for="Input.Title" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Tekstas</label>
+        <textarea class="form-control" rows="6" asp-for="Input.Text"></textarea>
+        <span class="text-danger" asp-validation-for="Input.Text"></span>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Išsaugoti</button>
+    <a class="btn btn-secondary"
+       asp-page="Index"
+       asp-route-apiaryId="@Model.ApiaryId"
+       asp-route-hiveId="@Model.HiveId">Atgal</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

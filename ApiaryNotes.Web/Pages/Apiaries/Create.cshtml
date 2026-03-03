@@ -1,0 +1,27 @@
+﻿@page
+@model ApiaryNotes.Web.Pages.Apiaries.CreateModel
+@{
+    ViewData["Title"] = "Naujas bitynas";
+}
+
+<h1>Naujas bitynas</h1>
+
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label">Pavadinimas</label>
+        <input class="form-control" asp-for="Input.Name" />
+        <span class="text-danger" asp-validation-for="Input.Name"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Vieta</label>
+        <input class="form-control" asp-for="Input.Location" />
+    </div>
+
+    <button class="btn btn-primary" type="submit">Išsaugoti</button>
+    <a class="btn btn-secondary" asp-page="Index">Atgal</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,19 @@
+﻿@page
+@model ApiaryNotes.Web.Pages.Hives.DeleteModel
+@{
+    ViewData["Title"] = "Trinti avilį";
+}
+
+<h1>Trinti avilį (@Model.ApiaryName)</h1>
+
+<div class="alert alert-warning">
+    Ar tikrai nori ištrinti avilį <strong>@Model.Hive.Code</strong>?
+</div>
+
+<form method="post">
+    <input type="hidden" asp-for="ApiaryId" />
+    <input type="hidden" asp-for="Id" />
+
+    <button class="btn btn-danger" type="submit">Taip, trinti</button>
+    <a class="btn btn-secondary" asp-page="Index" asp-route-apiaryId="@Model.ApiaryId">Atgal</a>
+</form>

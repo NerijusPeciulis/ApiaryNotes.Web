@@ -1,0 +1,24 @@
+﻿@page
+@model ApiaryNotes.Web.Pages.Notes.DeleteModel
+@{
+    ViewData["Title"] = "Trinti užrašą";
+}
+
+<h1>Trinti užrašą</h1>
+
+<div class="alert alert-warning">
+    Ar tikrai nori ištrinti užrašą <strong>@Model.Note.Date</strong>
+    @(string.IsNullOrWhiteSpace(Model.Note.Title) ? "" : $"({Model.Note.Title})")?
+</div>
+
+<form method="post">
+    <input type="hidden" asp-for="ApiaryId" />
+    <input type="hidden" asp-for="HiveId" />
+    <input type="hidden" asp-for="Id" />
+
+    <button class="btn btn-danger" type="submit">Taip, trinti</button>
+    <a class="btn btn-secondary"
+       asp-page="Index"
+       asp-route-apiaryId="@Model.ApiaryId"
+       asp-route-hiveId="@Model.HiveId">Atgal</a>
+</form>

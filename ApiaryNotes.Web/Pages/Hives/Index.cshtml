@@ -1,0 +1,49 @@
+﻿@page
+@model ApiaryNotes.Web.Pages.Hives.IndexModel
+@{
+    ViewData["Title"] = "Aviliai";
+}
+
+<h1>Aviliai: @Model.ApiaryName</h1>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create" asp-route-apiaryId="@Model.ApiaryId">+ Naujas avilys</a>
+    <a class="btn btn-secondary" asp-page="/Apiaries/Index">Atgal į bitynus</a>
+</p>
+
+@if (Model.Hives.Count == 0)
+{
+    <p>Kol kas nėra avilių.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Kodas</th>
+                <th>Tipas</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var h in Model.Hives)
+            {
+                <tr>
+                    <td>
+                    <td>
+                        <a asp-page="/Notes/Index" asp-route-hiveId="@h.Id" asp-route-apiaryId="@Model.ApiaryId">
+                            @h.Code
+                        </a>
+                    </td></td>
+                    <td>@h.HiveType</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-secondary"
+                           asp-page="Edit" asp-route-id="@h.Id" asp-route-apiaryId="@Model.ApiaryId">Redaguoti</a>
+                        <a class="btn btn-sm btn-outline-danger"
+                           asp-page="Delete" asp-route-id="@h.Id" asp-route-apiaryId="@Model.ApiaryId">Trinti</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

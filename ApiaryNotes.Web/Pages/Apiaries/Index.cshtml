@@ -1,0 +1,41 @@
+﻿@page
+@model ApiaryNotes.Web.Pages.Apiaries.IndexModel
+@{
+    ViewData["Title"] = "Bitynai";
+}
+
+<h1>Bitynai</h1>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">+ Naujas bitynas</a>
+</p>
+
+@if (Model.Apiaries.Count == 0)
+{
+    <p>Kol kas nėra bitynų.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Pavadinimas</th>
+                <th>Vieta</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in Model.Apiaries)
+            {
+                <tr>
+                    <td><a asp-page="/Hives/Index" asp-route-apiaryId="@a.Id">@a.Name</a></td>
+                    <td>@a.Location</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-secondary" asp-page="Edit" asp-route-id="@a.Id">Redaguoti</a>
+                        <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@a.Id">Trinti</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
