@@ -20,7 +20,7 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>Kodas</th>
+                <th>Pavadinimas</th>
                 <th>Tipas</th>
                 <th></th>
             </tr>
@@ -30,17 +30,31 @@ else
             {
                 <tr>
                     <td>
-                    <td>
-                        <a asp-page="/Notes/Index" asp-route-hiveId="@h.Id" asp-route-apiaryId="@Model.ApiaryId">
+                        <a asp-page="/Notes/Index"
+                           asp-route-hiveId="@h.Id"
+                           asp-route-apiaryId="@Model.ApiaryId">
                             @h.Code
                         </a>
-                    </td></td>
-                    <td>@h.HiveType</td>
+                    </td>
+
+                    <td>
+                        @(string.IsNullOrWhiteSpace(h.HiveType) ? "-" : h.HiveType)
+                    </td>
+
                     <td class="text-end">
                         <a class="btn btn-sm btn-outline-secondary"
-                           asp-page="Edit" asp-route-id="@h.Id" asp-route-apiaryId="@Model.ApiaryId">Redaguoti</a>
+                           asp-page="Edit"
+                           asp-route-id="@h.Id"
+                           asp-route-apiaryId="@Model.ApiaryId">
+                            Redaguoti
+                        </a>
+
                         <a class="btn btn-sm btn-outline-danger"
-                           asp-page="Delete" asp-route-id="@h.Id" asp-route-apiaryId="@Model.ApiaryId">Trinti</a>
+                           asp-page="Delete"
+                           asp-route-id="@h.Id"
+                           asp-route-apiaryId="@Model.ApiaryId">
+                            Trinti
+                        </a>
                     </td>
                 </tr>
             }
