@@ -1,10 +1,79 @@
 ﻿@page
-@model IndexModel
+@model ApiaryNotes.Web.Pages.IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Pagrindinis";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-1">ApiaryNotes</h1>
+            <div class="text-muted">Greiti užrašai bitynui – tvarkingai, paprastai.</div>
+        </div>
+
+        @if (Model.IsAuthenticated)
+        {
+            <a class="btn btn-primary" asp-page="/Apiaries/Index">Eiti į bitynus →</a>
+        }
+        else
+        {
+            <div>
+                <a class="btn btn-outline-primary me-2" asp-area="Identity" asp-page="/Account/Login">Prisijungti</a>
+                <a class="btn btn-primary" asp-area="Identity" asp-page="/Account/Register">Registruotis</a>
+            </div>
+        }
+    </div>
+
+    @if (!Model.IsAuthenticated)
+    {
+        <div class="alert alert-info">
+            Prisijunk, kad matytum savo bitynų, avilių ir užrašų suvestinę.
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-muted">Bitynai</div>
+                        <div class="display-6">@Model.ApiariesCount</div>
+                        <a class="btn btn-sm btn-outline-primary mt-2" asp-page="/Apiaries/Index">Atidaryti</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-muted">Aviliai</div>
+                        <div class="display-6">@Model.HivesCount</div>
+                        <div class="text-muted small mt-2">Atidaromi per bityną</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-muted">Užrašai</div>
+                        <div class="display-6">@Model.NotesCount</div>
+                        <div class="text-muted small mt-2">Atidaromi per avilį</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <div class="card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-semibold">Greitas startas</div>
+                        <div class="text-muted small">Bitynai → pasirink bityną → aviliai → užrašai</div>
+                    </div>
+                    <a class="btn btn-success" asp-page="/Apiaries/Create">+ Naujas bitynas</a>
+                </div>
+            </div>
+        </div>
+    }
 </div>

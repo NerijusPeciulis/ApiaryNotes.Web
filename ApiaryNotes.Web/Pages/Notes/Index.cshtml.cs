@@ -29,6 +29,9 @@ public class IndexModel : PageModel
     [BindProperty(SupportsGet = true)]
     public int HiveId { get; set; }
 
+    [BindProperty(SupportsGet = true)]
+    public string? Search { get; set; }
+
     public string ApiaryName { get; private set; } = string.Empty;
     public string HiveCode { get; private set; } = string.Empty;
 
@@ -49,7 +52,23 @@ public class IndexModel : PageModel
         if (hive.ApiaryId != ApiaryId) return NotFound();
         HiveCode = hive.Code;
 
-        Notes = await noteService.GetForHiveAsync(userId, HiveId);
+        var query = db.HiveNotes
+    .AsNoTracking()
+    .Where(n => n.HiveId == HiveId && n.OwnerUserId == userId);
+
+        if (!string.IsNullOrWhiteSpace(Search))
+        {
+            var s = Search.Trim().ToLower();
+
+            query = query.Where(n =>
+                (n.Title != null && n.Title.ToLower().Contains(s)) ||
+                n.Text.ToLower().Contains(s));
+        }
+
+        Notes = await query
+            .OrderByDescending(n => n.Date)
+            .ThenByDescending(n => n.Id)
+            .ToListAsync();
         return Page();
     }
 }
