@@ -9,4 +9,5 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Apiary> Apiaries => Set<Apiary>();
     public DbSet<Hive> Hives => Set<Hive>();
     public DbSet<HiveNote> HiveNotes => Set<HiveNote>();
+    public DbSet<HiveHarvest> HiveHarvests => Set<HiveHarvest>();
 }
