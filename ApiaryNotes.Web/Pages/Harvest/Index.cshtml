@@ -1,12 +1,12 @@
 ﻿@page
 @model ApiaryNotes.Web.Pages.Harvest.IndexModel
 @{
-    ViewData["Title"] = "Medaus išėmimai";
+    ViewData["Title"] = "Produktai";
 }
 
 <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-3">
     <div>
-        <h2 class="mb-1">Medaus išėmimai</h2>
+        <h2 class="mb-1">Produktai</h2>
         <div class="text-muted">
             Bitynas: <strong>@Model.ApiaryName</strong> |
             Avilys: <strong>@Model.HiveCode</strong>
@@ -71,7 +71,7 @@
 </form>
 
 <div class="alert alert-success mb-3">
-    <strong>@Model.SelectedYear m. iš šio avilio išsukta:</strong>
+    <strong>@Model.SelectedYear m. Viso produktų iš šio avilio:</strong>
     @Model.TotalKg.ToString("0.##") kg / @Model.TotalL.ToString("0.##") l
 </div>
 

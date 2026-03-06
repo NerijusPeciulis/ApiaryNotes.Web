@@ -11,9 +11,11 @@ public class HiveHarvest
 
     public DateOnly Date { get; set; }
 
-    public decimal Amount { get; set; } // kiekis
+    public ProductType Product { get; set; } = ProductType.Honey;
 
-    public HarvestUnit Unit { get; set; } // Kg arba L
+    public decimal Amount { get; set; }
+
+    public HarvestUnit Unit { get; set; }
 
     public string? Note { get; set; }
 
@@ -24,4 +26,12 @@ public enum HarvestUnit
 {
     Kg = 1,
     L = 2,
+}
+
+public enum ProductType
+{
+    Honey = 1,
+    Wax = 2,
+    BeeBread = 3,
+    Propolis = 4,
 }
