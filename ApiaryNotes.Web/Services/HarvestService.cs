@@ -11,12 +11,13 @@ public sealed class HarvestService
     public HarvestService(ApplicationDbContext db) => this.db = db;
 
     public async Task<HiveHarvest> CreateAsync(
-        string ownerUserId,
-        int hiveId,
-        DateOnly date,
-        decimal amount,
-        HarvestUnit unit,
-        string? note)
+    string ownerUserId,
+    int hiveId,
+    DateOnly date,
+    ProductType product,
+    decimal amount,
+    HarvestUnit unit,
+    string? note)
     {
         if (string.IsNullOrWhiteSpace(ownerUserId))
             throw new ArgumentException("Owner user id is required.", nameof(ownerUserId));
@@ -36,6 +37,7 @@ public sealed class HarvestService
             OwnerUserId = ownerUserId,
             HiveId = hiveId,
             Date = date,
+            Product = product,
             Amount = amount,
             Unit = unit,
             Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim(),

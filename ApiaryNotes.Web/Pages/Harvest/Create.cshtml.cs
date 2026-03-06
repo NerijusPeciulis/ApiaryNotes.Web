@@ -16,7 +16,10 @@ public class CreateModel : PageModel
     private readonly HarvestService harvestService;
     private readonly UserManager<IdentityUser> userManager;
 
-    public CreateModel(ApplicationDbContext db, HarvestService harvestService, UserManager<IdentityUser> userManager)
+    public CreateModel(
+        ApplicationDbContext db,
+        HarvestService harvestService,
+        UserManager<IdentityUser> userManager)
     {
         this.db = db;
         this.harvestService = harvestService;
@@ -38,6 +41,7 @@ public class CreateModel : PageModel
     public class InputModel
     {
         public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+        public ProductType Product { get; set; } = ProductType.Honey;
         public decimal Amount { get; set; }
         public HarvestUnit Unit { get; set; } = HarvestUnit.Kg;
         public string? Note { get; set; }
@@ -47,16 +51,11 @@ public class CreateModel : PageModel
     {
         var userId = userManager.GetUserId(User)!;
 
-        var apiary = await db.Apiaries.AsNoTracking().FirstOrDefaultAsync(a => a.Id == ApiaryId);
-        if (apiary is null) return NotFound();
-        if (apiary.OwnerUserId != userId) return Forbid();
-        ApiaryName = apiary.Name;
-
-        var hive = await db.Hives.AsNoTracking().FirstOrDefaultAsync(h => h.Id == HiveId);
-        if (hive is null) return NotFound();
-        if (hive.OwnerUserId != userId) return Forbid();
-        if (hive.ApiaryId != ApiaryId) return NotFound();
-        HiveCode = hive.Code;
+        var ok = await LoadApiaryAndHiveAsync(userId);
+        if (!ok)
+        {
+            return NotFound();
+        }
 
         return Page();
     }
@@ -65,13 +64,54 @@ public class CreateModel : PageModel
     {
         var userId = userManager.GetUserId(User)!;
 
+        var ok = await LoadApiaryAndHiveAsync(userId);
+        if (!ok)
+        {
+            return NotFound();
+        }
+
         if (Input.Amount <= 0)
         {
             ModelState.AddModelError(nameof(Input.Amount), "Kiekis turi būti > 0.");
             return Page();
         }
 
-        await harvestService.CreateAsync(userId, HiveId, Input.Date, Input.Amount, Input.Unit, Input.Note);
+        await harvestService.CreateAsync(
+            userId,
+            HiveId,
+            Input.Date,
+            Input.Product,
+            Input.Amount,
+            Input.Unit,
+            Input.Note);
+
         return RedirectToPage("Index", new { apiaryId = ApiaryId, hiveId = HiveId });
+    }
+
+    private async Task<bool> LoadApiaryAndHiveAsync(string userId)
+    {
+        var apiary = await db.Apiaries
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a => a.Id == ApiaryId);
+
+        if (apiary is null || apiary.OwnerUserId != userId)
+        {
+            return false;
+        }
+
+        ApiaryName = apiary.Name;
+
+        var hive = await db.Hives
+            .AsNoTracking()
+            .FirstOrDefaultAsync(h => h.Id == HiveId);
+
+        if (hive is null || hive.OwnerUserId != userId || hive.ApiaryId != ApiaryId)
+        {
+            return false;
+        }
+
+        HiveCode = hive.Code;
+
+        return true;
     }
 }

@@ -1,4 +1,5 @@
 ﻿@page
+@using ApiaryNotes.Web.Domain
 @model ApiaryNotes.Web.Pages.Harvest.IndexModel
 @{
     ViewData["Title"] = "Produktai";
@@ -17,9 +18,8 @@
         <a class="btn btn-success"
            asp-page="Create"
            asp-route-apiaryId="@Model.ApiaryId"
-           asp-route-hiveId="@Model.HiveId"
-           asp-route-year="@Model.SelectedYear">
-            + Pridėti
+           asp-route-hiveId="@Model.HiveId">
+            + Pridėti produktą
         </a>
 
         <a class="btn btn-outline-primary"
@@ -66,35 +66,36 @@
     </div>
 
     <div class="col-auto">
+        <label for="product" class="form-label">Produktas</label>
+        <select id="product" name="product" class="form-select">
+            @foreach (var product in Enum.GetValues<ProductType>())
+            {
+                if (product == Model.SelectedProduct)
+                {
+                    <option value="@product" selected>@product</option>
+                }
+                else
+                {
+                    <option value="@product">@product</option>
+                }
+            }
+        </select>
+    </div>
+
+    <div class="col-auto">
         <button type="submit" class="btn btn-primary">Rodyti</button>
     </div>
 </form>
 
 <div class="alert alert-success mb-3">
-    <strong>@Model.SelectedYear m. Viso produktų iš šio avilio:</strong>
+    <strong>@Model.SelectedYear m. iš šio avilio produkto @Model.SelectedProduct:</strong>
     @Model.TotalKg.ToString("0.##") kg / @Model.TotalL.ToString("0.##") l
 </div>
-
-@if (Model.TotalKg > 0)
-{
-    <div class="alert alert-light border">
-        Iš avilio <strong>@Model.HiveCode</strong> per <strong>@Model.SelectedYear</strong> metus išimta
-        <strong>@Model.TotalKg.ToString("0.##") kg</strong>.
-    </div>
-}
-
-@if (Model.TotalL > 0)
-{
-    <div class="alert alert-light border">
-        Iš avilio <strong>@Model.HiveCode</strong> per <strong>@Model.SelectedYear</strong> metus išimta
-        <strong>@Model.TotalL.ToString("0.##") l</strong>.
-    </div>
-}
 
 @if (Model.Items.Count == 0)
 {
     <div class="alert alert-warning">
-        Pasirinktais metais medaus išėmimų nėra.
+        Pasirinktam produktui įrašų nėra.
     </div>
 }
 else
@@ -104,6 +105,7 @@ else
             <thead>
                 <tr>
                     <th>Data</th>
+                    <th>Produktas</th>
                     <th>Kiekis</th>
                     <th>Vienetas</th>
                     <th>Pastaba</th>
@@ -115,6 +117,7 @@ else
                 {
                     <tr>
                         <td>@x.Date.ToString("yyyy-MM-dd")</td>
+                        <td>@x.Product</td>
                         <td>@x.Amount.ToString("0.##")</td>
                         <td>@x.Unit</td>
                         <td>@(string.IsNullOrWhiteSpace(x.Note) ? "-" : x.Note)</td>
@@ -123,8 +126,7 @@ else
                                asp-page="Edit"
                                asp-route-id="@x.Id"
                                asp-route-apiaryId="@Model.ApiaryId"
-                               asp-route-hiveId="@Model.HiveId"
-                               asp-route-year="@Model.SelectedYear">
+                               asp-route-hiveId="@Model.HiveId">
                                 Redaguoti
                             </a>
 
@@ -132,8 +134,7 @@ else
                                asp-page="Delete"
                                asp-route-id="@x.Id"
                                asp-route-apiaryId="@Model.ApiaryId"
-                               asp-route-hiveId="@Model.HiveId"
-                               asp-route-year="@Model.SelectedYear">
+                               asp-route-hiveId="@Model.HiveId">
                                 Trinti
                             </a>
                         </td>
