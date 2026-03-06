@@ -32,6 +32,9 @@ public class IndexModel : PageModel
     [BindProperty(SupportsGet = true)]
     public int HiveId { get; set; }
 
+    [BindProperty(SupportsGet = true)]
+    public int? Year { get; set; }
+
     public string ApiaryName { get; private set; } = string.Empty;
     public string HiveCode { get; private set; } = string.Empty;
 
@@ -39,6 +42,10 @@ public class IndexModel : PageModel
 
     public decimal TotalKg { get; private set; }
     public decimal TotalL { get; private set; }
+
+    public List<int> AvailableYears { get; private set; } = new();
+
+    public int SelectedYear { get; private set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -81,15 +88,25 @@ public class IndexModel : PageModel
 
         HiveCode = hive.Code;
 
-        Items = await harvestService.GetForHiveAsync(userId, HiveId);
+        AvailableYears = await harvestService.GetYearsForHiveAsync(userId, HiveId);
 
-        TotalKg = Items
-            .Where(x => x.Unit == HarvestUnit.Kg)
-            .Sum(x => x.Amount);
+        if (AvailableYears.Count == 0)
+        {
+            SelectedYear = DateTime.Now.Year;
+            AvailableYears.Add(SelectedYear);
+        }
+        else
+        {
+            SelectedYear = Year.HasValue && AvailableYears.Contains(Year.Value)
+                ? Year.Value
+                : AvailableYears.First();
+        }
 
-        TotalL = Items
-            .Where(x => x.Unit == HarvestUnit.L)
-            .Sum(x => x.Amount);
+        Items = await harvestService.GetForHiveByYearAsync(userId, HiveId, SelectedYear);
+
+        var totals = await harvestService.GetTotalsForHiveByYearAsync(userId, HiveId, SelectedYear);
+        TotalKg = totals.kg;
+        TotalL = totals.l;
 
         return Page();
     }

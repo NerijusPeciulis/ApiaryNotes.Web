@@ -57,6 +57,29 @@ public sealed class HarvestService
             .ToListAsync();
     }
 
+    public Task<List<HiveHarvest>> GetForHiveByYearAsync(string ownerUserId, int hiveId, int year)
+    {
+        return db.HiveHarvests
+            .AsNoTracking()
+            .Where(x => x.HiveId == hiveId
+                && x.OwnerUserId == ownerUserId
+                && x.Date.Year == year)
+            .OrderByDescending(x => x.Date)
+            .ThenByDescending(x => x.Id)
+            .ToListAsync();
+    }
+
+    public Task<List<int>> GetYearsForHiveAsync(string ownerUserId, int hiveId)
+    {
+        return db.HiveHarvests
+            .AsNoTracking()
+            .Where(x => x.HiveId == hiveId && x.OwnerUserId == ownerUserId)
+            .Select(x => x.Date.Year)
+            .Distinct()
+            .OrderByDescending(x => x)
+            .ToListAsync();
+    }
+
     public async Task DeleteAsync(int harvestId, string ownerUserId)
     {
         var harvest = await db.HiveHarvests.FirstOrDefaultAsync(x => x.Id == harvestId);
@@ -75,6 +98,21 @@ public sealed class HarvestService
         var list = await db.HiveHarvests
             .AsNoTracking()
             .Where(x => x.HiveId == hiveId && x.OwnerUserId == ownerUserId)
+            .ToListAsync();
+
+        var totalKg = list.Where(x => x.Unit == HarvestUnit.Kg).Sum(x => x.Amount);
+        var totalL = list.Where(x => x.Unit == HarvestUnit.L).Sum(x => x.Amount);
+
+        return (totalKg, totalL);
+    }
+
+    public async Task<(decimal kg, decimal l)> GetTotalsForHiveByYearAsync(string ownerUserId, int hiveId, int year)
+    {
+        var list = await db.HiveHarvests
+            .AsNoTracking()
+            .Where(x => x.HiveId == hiveId
+                && x.OwnerUserId == ownerUserId
+                && x.Date.Year == year)
             .ToListAsync();
 
         var totalKg = list.Where(x => x.Unit == HarvestUnit.Kg).Sum(x => x.Amount);

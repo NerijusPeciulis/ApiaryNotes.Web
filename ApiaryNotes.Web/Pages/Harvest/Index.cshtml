@@ -4,18 +4,21 @@
     ViewData["Title"] = "Medaus išėmimai";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <div class="alert alert-success mb-3">
-        <strong>Viso išsukta iš šio avilio:</strong>
-        @Model.TotalKg kg / @Model.TotalL l
-    </div>
+<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-3">
+    <div>
+        <h2 class="mb-1">Medaus išėmimai</h2>
+        <div class="text-muted">
+            Bitynas: <strong>@Model.ApiaryName</strong> |
+            Avilys: <strong>@Model.HiveCode</strong>
+        </div>
     </div>
 
-    <div>
+    <div class="d-flex gap-2 flex-wrap">
         <a class="btn btn-success"
            asp-page="Create"
            asp-route-apiaryId="@Model.ApiaryId"
-           asp-route-hiveId="@Model.HiveId">
+           asp-route-hiveId="@Model.HiveId"
+           asp-route-year="@Model.SelectedYear">
             + Pridėti
         </a>
 
@@ -34,43 +37,98 @@
     </div>
 </div>
 
+<form method="get" class="row g-2 align-items-end mb-3">
+    <input type="hidden" name="apiaryId" value="@Model.ApiaryId" />
+    <input type="hidden" name="hiveId" value="@Model.HiveId" />
+
+    <div class="col-auto">
+        <label for="year" class="form-label">Metai</label>
+        <select id="year" name="year" class="form-select">
+            @foreach (var year in Model.AvailableYears)
+            {
+                if (year == Model.SelectedYear)
+                {
+                    <option value="@year" selected>@year</option>
+                }
+                else
+                {
+                    <option value="@year">@year</option>
+                }
+            }
+        </select>
+    </div>
+
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Rodyti</button>
+    </div>
+</form>
+
+<div class="alert alert-success mb-3">
+    <strong>@Model.SelectedYear m. iš šio avilio išsukta:</strong>
+    @Model.TotalKg.ToString("0.##") kg / @Model.TotalL.ToString("0.##") l
+</div>
+
+@if (Model.TotalKg > 0)
+{
+    <div class="alert alert-light border">
+        Iš avilio <strong>@Model.HiveCode</strong> per <strong>@Model.SelectedYear</strong> metus išimta
+        <strong>@Model.TotalKg.ToString("0.##") kg</strong>.
+    </div>
+}
+
+@if (Model.TotalL > 0)
+{
+    <div class="alert alert-light border">
+        Iš avilio <strong>@Model.HiveCode</strong> per <strong>@Model.SelectedYear</strong> metus išimta
+        <strong>@Model.TotalL.ToString("0.##") l</strong>.
+    </div>
+}
+
 @if (Model.Items.Count == 0)
 {
-    <p>Kol kas nėra medaus išėmimų.</p>
+    <div class="alert alert-warning">
+        Pasirinktais metais medaus išėmimų nėra.
+    </div>
 }
 else
 {
     <div class="table-responsive">
-        <table class="table table-hover">
+        <table class="table table-hover align-middle">
             <thead>
                 <tr>
                     <th>Data</th>
                     <th>Kiekis</th>
                     <th>Vienetas</th>
                     <th>Pastaba</th>
-                    <th></th>
+                    <th class="text-end"></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var x in Model.Items)
                 {
                     <tr>
-                        <td>@x.Date</td>
-                        <td>@x.Amount</td>
+                        <td>@x.Date.ToString("yyyy-MM-dd")</td>
+                        <td>@x.Amount.ToString("0.##")</td>
                         <td>@x.Unit</td>
-                        <td>@x.Note</td>
+                        <td>@(string.IsNullOrWhiteSpace(x.Note) ? "-" : x.Note)</td>
                         <td class="text-end">
                             <a class="btn btn-sm btn-outline-secondary"
                                asp-page="Edit"
                                asp-route-id="@x.Id"
                                asp-route-apiaryId="@Model.ApiaryId"
-                               asp-route-hiveId="@Model.HiveId">Redaguoti</a>
+                               asp-route-hiveId="@Model.HiveId"
+                               asp-route-year="@Model.SelectedYear">
+                                Redaguoti
+                            </a>
 
                             <a class="btn btn-sm btn-outline-danger"
                                asp-page="Delete"
                                asp-route-id="@x.Id"
                                asp-route-apiaryId="@Model.ApiaryId"
-                               asp-route-hiveId="@Model.HiveId">Trinti</a>
+                               asp-route-hiveId="@Model.HiveId"
+                               asp-route-year="@Model.SelectedYear">
+                                Trinti
+                            </a>
                         </td>
                     </tr>
                 }
