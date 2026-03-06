@@ -166,4 +166,33 @@ public sealed class HarvestService
             .ThenBy(x => x.HiveCode)
             .ToListAsync();
     }
+
+    public async Task<List<MonthlyHarvestPoint>> GetMonthlyTotalsForApiaryAsync(string ownerUserId, int apiaryId, int year)
+    {
+        var raw = await db.HiveHarvests
+            .AsNoTracking()
+            .Where(x => x.OwnerUserId == ownerUserId
+                && x.Hive.ApiaryId == apiaryId
+                && x.Date.Year == year)
+            .GroupBy(x => x.Date.Month)
+            .Select(g => new MonthlyHarvestPoint
+            {
+                Month = g.Key,
+                TotalKg = g.Where(x => x.Unit == HarvestUnit.Kg).Sum(x => x.Amount),
+                TotalL = g.Where(x => x.Unit == HarvestUnit.L).Sum(x => x.Amount),
+            })
+            .ToListAsync();
+
+        var result = Enumerable.Range(1, 12)
+            .Select(month => raw.FirstOrDefault(x => x.Month == month) ?? new MonthlyHarvestPoint
+            {
+                Month = month,
+                TotalKg = 0,
+                TotalL = 0,
+            })
+            .OrderBy(x => x.Month)
+            .ToList();
+
+        return result;
+    }
 }

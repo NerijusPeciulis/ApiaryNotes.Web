@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace ApiaryNotes.Web.Pages.Harvest;
 
@@ -41,6 +42,14 @@ public class ApiaryStatsModel : PageModel
     public decimal TotalL { get; private set; }
 
     public List<ApiaryHarvestStatRow> Rows { get; private set; } = new();
+
+    public List<MonthlyHarvestPoint> MonthlyPoints { get; private set; } = new();
+
+    public string MonthlyLabelsJson { get; private set; } = "[]";
+
+    public string MonthlyKgDataJson { get; private set; } = "[]";
+
+    public string MonthlyLDataJson { get; private set; } = "[]";
 
     public ApiaryHarvestStatRow? BestHive =>
         Rows.OrderByDescending(x => x.TotalKg).FirstOrDefault();
@@ -84,6 +93,18 @@ public class ApiaryStatsModel : PageModel
         TotalL = totals.l;
 
         Rows = await harvestService.GetApiaryStatsByYearAsync(userId, ApiaryId, SelectedYear);
+
+        MonthlyPoints = await harvestService.GetMonthlyTotalsForApiaryAsync(userId, ApiaryId, SelectedYear);
+
+        var monthLabels = new[]
+        {
+    "Sausis", "Vasaris", "Kovas", "Balandis", "Gegužė", "Birželis",
+    "Liepa", "Rugpjūtis", "Rugsėjis", "Spalis", "Lapkritis", "Gruodis"
+};
+
+        MonthlyLabelsJson = JsonSerializer.Serialize(monthLabels);
+        MonthlyKgDataJson = JsonSerializer.Serialize(MonthlyPoints.Select(x => x.TotalKg));
+        MonthlyLDataJson = JsonSerializer.Serialize(MonthlyPoints.Select(x => x.TotalL));
 
         return Page();
     }

@@ -56,6 +56,13 @@
     @Model.TotalKg.ToString("0.##") kg / @Model.TotalL.ToString("0.##") l
 </div>
 
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="card-title">@Model.SelectedYear m. medaus dinamika pagal mėnesius</h5>
+        <canvas id="harvestChart" height="110"></canvas>
+    </div>
+</div>
+
 @if (Model.BestHive is not null && Model.BestHive.TotalKg > 0)
 {
     <div class="alert alert-light border mb-3">
@@ -112,4 +119,41 @@ else
             </tfoot>
         </table>
     </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const labels = @Html.Raw(Model.MonthlyLabelsJson);
+        const kgData = @Html.Raw(Model.MonthlyKgDataJson);
+        const lData = @Html.Raw(Model.MonthlyLDataJson);
+
+        const ctx = document.getElementById('harvestChart');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Kg',
+                        data: kgData
+                    },
+                    {
+                        label: 'L',
+                        data: lData
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 }
