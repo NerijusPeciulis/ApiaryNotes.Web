@@ -13,6 +13,12 @@
         + Naujas avilys
     </a>
 
+    <a class="btn btn-outline-primary"
+       asp-page="/Harvest/ApiaryStats"
+       asp-route-apiaryId="@Model.ApiaryId">
+        Bityno statistika
+    </a>
+
     <a class="btn btn-secondary"
        asp-page="/Apiaries/Index">
         Atgal į bitynus
@@ -27,7 +33,6 @@ else
 {
     <div class="table-responsive">
         <table class="table table-hover">
-
             <thead>
                 <tr>
                     <th>Pavadinimas</th>
@@ -62,7 +67,6 @@ else
                         </td>
 
                         <td class="text-end">
-
                             <a class="btn btn-sm btn-outline-primary"
                                asp-page="/Harvest/Index"
                                asp-route-apiaryId="@Model.ApiaryId"
@@ -83,12 +87,10 @@ else
                                asp-route-apiaryId="@Model.ApiaryId">
                                 Trinti
                             </a>
-
                         </td>
                     </tr>
                 }
             </tbody>
-
         </table>
     </div>
 }

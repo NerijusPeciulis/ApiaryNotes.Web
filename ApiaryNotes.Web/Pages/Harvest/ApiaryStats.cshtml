@@ -1,0 +1,115 @@
+﻿@page
+@model ApiaryNotes.Web.Pages.Harvest.ApiaryStatsModel
+@{
+    ViewData["Title"] = "Bityno statistika";
+}
+
+<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-3">
+    <div>
+        <h2 class="mb-1">Bityno statistika</h2>
+        <div class="text-muted">
+            Bitynas: <strong>@Model.ApiaryName</strong>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-outline-secondary"
+           asp-page="/Hives/Index"
+           asp-route-apiaryId="@Model.ApiaryId">
+            Aviliai
+        </a>
+
+        <a class="btn btn-outline-secondary"
+           asp-page="/Apiaries/Index">
+            Bitynai
+        </a>
+    </div>
+</div>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+    <input type="hidden" name="apiaryId" value="@Model.ApiaryId" />
+
+    <div class="col-auto">
+        <label for="year" class="form-label">Metai</label>
+        <select id="year" name="year" class="form-select">
+            @foreach (var year in Model.AvailableYears)
+            {
+                if (year == Model.SelectedYear)
+                {
+                    <option value="@year" selected>@year</option>
+                }
+                else
+                {
+                    <option value="@year">@year</option>
+                }
+            }
+        </select>
+    </div>
+
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Rodyti</button>
+    </div>
+</form>
+
+<div class="alert alert-success mb-3">
+    <strong>@Model.SelectedYear m. viso bityne išsukta:</strong>
+    @Model.TotalKg.ToString("0.##") kg / @Model.TotalL.ToString("0.##") l
+</div>
+
+@if (Model.BestHive is not null && Model.BestHive.TotalKg > 0)
+{
+    <div class="alert alert-light border mb-3">
+        Geriausias avilys <strong>@Model.SelectedYear</strong> metais:
+        <strong>@Model.BestHive.HiveCode</strong> —
+        <strong>@Model.BestHive.TotalKg.ToString("0.##") kg</strong>
+    </div>
+}
+
+@if (Model.Rows.Count == 0)
+{
+    <div class="alert alert-warning">
+        Pasirinktais metais šiame bityne medaus įrašų nėra.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Avilys</th>
+                    <th>Kg</th>
+                    <th>L</th>
+                    <th class="text-end"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in Model.Rows)
+                {
+                    <tr>
+                        <td>@row.HiveCode</td>
+                        <td>@row.TotalKg.ToString("0.##")</td>
+                        <td>@row.TotalL.ToString("0.##")</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary"
+                               asp-page="/Harvest/Index"
+                               asp-route-apiaryId="@Model.ApiaryId"
+                               asp-route-hiveId="@row.HiveId"
+                               asp-route-year="@Model.SelectedYear">
+                                Atidaryti
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr class="fw-bold">
+                    <td>Viso</td>
+                    <td>@Model.TotalKg.ToString("0.##")</td>
+                    <td>@Model.TotalL.ToString("0.##")</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+}

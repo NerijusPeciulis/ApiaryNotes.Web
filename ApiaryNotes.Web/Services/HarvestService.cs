@@ -120,4 +120,50 @@ public sealed class HarvestService
 
         return (totalKg, totalL);
     }
+
+    public Task<List<int>> GetYearsForApiaryAsync(string ownerUserId, int apiaryId)
+    {
+        return db.HiveHarvests
+            .AsNoTracking()
+            .Where(x => x.OwnerUserId == ownerUserId && x.Hive.ApiaryId == apiaryId)
+            .Select(x => x.Date.Year)
+            .Distinct()
+            .OrderByDescending(x => x)
+            .ToListAsync();
+    }
+
+    public async Task<(decimal kg, decimal l)> GetTotalsForApiaryByYearAsync(string ownerUserId, int apiaryId, int year)
+    {
+        var list = await db.HiveHarvests
+            .AsNoTracking()
+            .Where(x => x.OwnerUserId == ownerUserId
+                && x.Hive.ApiaryId == apiaryId
+                && x.Date.Year == year)
+            .ToListAsync();
+
+        var totalKg = list.Where(x => x.Unit == HarvestUnit.Kg).Sum(x => x.Amount);
+        var totalL = list.Where(x => x.Unit == HarvestUnit.L).Sum(x => x.Amount);
+
+        return (totalKg, totalL);
+    }
+
+    public Task<List<ApiaryHarvestStatRow>> GetApiaryStatsByYearAsync(string ownerUserId, int apiaryId, int year)
+    {
+        return db.HiveHarvests
+            .AsNoTracking()
+            .Where(x => x.OwnerUserId == ownerUserId
+                && x.Hive.ApiaryId == apiaryId
+                && x.Date.Year == year)
+            .GroupBy(x => new { x.HiveId, x.Hive.Code })
+            .Select(g => new ApiaryHarvestStatRow
+            {
+                HiveId = g.Key.HiveId,
+                HiveCode = g.Key.Code,
+                TotalKg = g.Where(x => x.Unit == HarvestUnit.Kg).Sum(x => x.Amount),
+                TotalL = g.Where(x => x.Unit == HarvestUnit.L).Sum(x => x.Amount),
+            })
+            .OrderByDescending(x => x.TotalKg)
+            .ThenBy(x => x.HiveCode)
+            .ToListAsync();
+    }
 }

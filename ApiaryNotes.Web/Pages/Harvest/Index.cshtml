@@ -22,6 +22,13 @@
             + Pridėti
         </a>
 
+        <a class="btn btn-outline-primary"
+           asp-page="/Harvest/ApiaryStats"
+           asp-route-apiaryId="@Model.ApiaryId"
+           asp-route-year="@Model.SelectedYear">
+            Bityno statistika
+        </a>
+
         <a class="btn btn-outline-secondary"
            asp-page="/Notes/Index"
            asp-route-apiaryId="@Model.ApiaryId"
