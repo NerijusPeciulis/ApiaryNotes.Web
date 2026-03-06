@@ -1,0 +1,20 @@
+﻿@page
+@model ApiaryNotes.Web.Pages.Harvest.DeleteModel
+@{
+    ViewData["Title"] = "Trinti įrašą";
+}
+
+<h1>Trinti medaus įrašą</h1>
+
+<div class="alert alert-warning">
+    Ar tikrai nori ištrinti: <strong>@Model.Summary</strong>?
+</div>
+
+<form method="post">
+    <input type="hidden" asp-for="ApiaryId" />
+    <input type="hidden" asp-for="HiveId" />
+    <input type="hidden" asp-for="Id" />
+
+    <button class="btn btn-danger" type="submit">Taip, trinti</button>
+    <a class="btn btn-secondary" asp-page="Index" asp-route-apiaryId="@Model.ApiaryId" asp-route-hiveId="@Model.HiveId">Atgal</a>
+</form>

@@ -1,5 +1,4 @@
-﻿using ApiaryNotes.Web.Application.Services;
-using ApiaryNotes.Web.Data;
+﻿using ApiaryNotes.Web.Data;
 using ApiaryNotes.Web.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -13,13 +12,11 @@ namespace ApiaryNotes.Web.Pages.Hives;
 public class IndexModel : PageModel
 {
     private readonly ApplicationDbContext db;
-    private readonly HiveService hiveService;
     private readonly UserManager<IdentityUser> userManager;
 
-    public IndexModel(ApplicationDbContext db, HiveService hiveService, UserManager<IdentityUser> userManager)
+    public IndexModel(ApplicationDbContext db, UserManager<IdentityUser> userManager)
     {
         this.db = db;
-        this.hiveService = hiveService;
         this.userManager = userManager;
     }
 
@@ -28,18 +25,65 @@ public class IndexModel : PageModel
 
     public string ApiaryName { get; private set; } = string.Empty;
 
-    public List<Hive> Hives { get; private set; } = new();
+    public List<HiveListItem> Hives { get; private set; } = new();
+
+    public class HiveListItem
+    {
+        public int Id { get; set; }
+        public string Code { get; set; } = string.Empty;
+        public string? HiveType { get; set; }
+        public decimal TotalKg { get; set; }
+        public decimal TotalL { get; set; }
+    }
 
     public async Task<IActionResult> OnGetAsync()
     {
         var userId = userManager.GetUserId(User)!;
 
-        var apiary = await db.Apiaries.AsNoTracking().FirstOrDefaultAsync(a => a.Id == ApiaryId);
-        if (apiary is null) return NotFound();
-        if (apiary.OwnerUserId != userId) return Forbid();
+        var apiary = await db.Apiaries
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a => a.Id == ApiaryId);
+
+        if (apiary is null)
+        {
+            return NotFound();
+        }
+
+        if (apiary.OwnerUserId != userId)
+        {
+            return Forbid();
+        }
 
         ApiaryName = apiary.Name;
-        Hives = await hiveService.GetForApiaryAsync(userId, ApiaryId);
+
+        var hives = await db.Hives
+            .AsNoTracking()
+            .Where(h => h.ApiaryId == ApiaryId && h.OwnerUserId == userId)
+            .OrderBy(h => h.Code)
+            .ToListAsync();
+
+        var harvests = await db.HiveHarvests
+            .AsNoTracking()
+            .Where(x => x.OwnerUserId == userId)
+            .ToListAsync();
+
+        Hives = hives.Select(h =>
+        {
+            var hiveHarvest = harvests.Where(x => x.HiveId == h.Id);
+
+            return new HiveListItem
+            {
+                Id = h.Id,
+                Code = h.Code,
+                HiveType = h.HiveType,
+                TotalKg = hiveHarvest
+                    .Where(x => x.Unit == HarvestUnit.Kg)
+                    .Sum(x => x.Amount),
+                TotalL = hiveHarvest
+                    .Where(x => x.Unit == HarvestUnit.L)
+                    .Sum(x => x.Amount)
+            };
+        }).ToList();
 
         return Page();
     }

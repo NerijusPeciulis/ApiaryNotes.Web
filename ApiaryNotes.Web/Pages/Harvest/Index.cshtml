@@ -1,0 +1,80 @@
+﻿@page
+@model ApiaryNotes.Web.Pages.Harvest.IndexModel
+@{
+    ViewData["Title"] = "Medaus išėmimai";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="alert alert-success mb-3">
+        <strong>Viso išsukta iš šio avilio:</strong>
+        @Model.TotalKg kg / @Model.TotalL l
+    </div>
+    </div>
+
+    <div>
+        <a class="btn btn-success"
+           asp-page="Create"
+           asp-route-apiaryId="@Model.ApiaryId"
+           asp-route-hiveId="@Model.HiveId">
+            + Pridėti
+        </a>
+
+        <a class="btn btn-outline-secondary"
+           asp-page="/Notes/Index"
+           asp-route-apiaryId="@Model.ApiaryId"
+           asp-route-hiveId="@Model.HiveId">
+            Užrašai
+        </a>
+
+        <a class="btn btn-outline-secondary"
+           asp-page="/Hives/Index"
+           asp-route-apiaryId="@Model.ApiaryId">
+            Atgal
+        </a>
+    </div>
+</div>
+
+@if (Model.Items.Count == 0)
+{
+    <p>Kol kas nėra medaus išėmimų.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Kiekis</th>
+                    <th>Vienetas</th>
+                    <th>Pastaba</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var x in Model.Items)
+                {
+                    <tr>
+                        <td>@x.Date</td>
+                        <td>@x.Amount</td>
+                        <td>@x.Unit</td>
+                        <td>@x.Note</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary"
+                               asp-page="Edit"
+                               asp-route-id="@x.Id"
+                               asp-route-apiaryId="@Model.ApiaryId"
+                               asp-route-hiveId="@Model.HiveId">Redaguoti</a>
+
+                            <a class="btn btn-sm btn-outline-danger"
+                               asp-page="Delete"
+                               asp-route-id="@x.Id"
+                               asp-route-apiaryId="@Model.ApiaryId"
+                               asp-route-hiveId="@Model.HiveId">Trinti</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

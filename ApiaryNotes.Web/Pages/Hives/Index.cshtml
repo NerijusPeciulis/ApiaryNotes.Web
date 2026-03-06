@@ -7,8 +7,16 @@
 <h1>Aviliai: @Model.ApiaryName</h1>
 
 <p>
-    <a class="btn btn-primary" asp-page="Create" asp-route-apiaryId="@Model.ApiaryId">+ Naujas avilys</a>
-    <a class="btn btn-secondary" asp-page="/Apiaries/Index">Atgal į bitynus</a>
+    <a class="btn btn-primary"
+       asp-page="Create"
+       asp-route-apiaryId="@Model.ApiaryId">
+        + Naujas avilys
+    </a>
+
+    <a class="btn btn-secondary"
+       asp-page="/Apiaries/Index">
+        Atgal į bitynus
+    </a>
 </p>
 
 @if (Model.Hives.Count == 0)
@@ -17,47 +25,70 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Pavadinimas</th>
-                <th>Tipas</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var h in Model.Hives)
-            {
+    <div class="table-responsive">
+        <table class="table table-hover">
+
+            <thead>
                 <tr>
-                    <td>
-                        <a asp-page="/Notes/Index"
-                           asp-route-hiveId="@h.Id"
-                           asp-route-apiaryId="@Model.ApiaryId">
-                            @h.Code
-                        </a>
-                    </td>
-
-                    <td>
-                        @(string.IsNullOrWhiteSpace(h.HiveType) ? "-" : h.HiveType)
-                    </td>
-
-                    <td class="text-end">
-                        <a class="btn btn-sm btn-outline-secondary"
-                           asp-page="Edit"
-                           asp-route-id="@h.Id"
-                           asp-route-apiaryId="@Model.ApiaryId">
-                            Redaguoti
-                        </a>
-
-                        <a class="btn btn-sm btn-outline-danger"
-                           asp-page="Delete"
-                           asp-route-id="@h.Id"
-                           asp-route-apiaryId="@Model.ApiaryId">
-                            Trinti
-                        </a>
-                    </td>
+                    <th>Pavadinimas</th>
+                    <th>Tipas</th>
+                    <th>Viso medaus</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+
+            <tbody>
+                @foreach (var h in Model.Hives)
+                {
+                    <tr>
+                        <td>
+                            <a asp-page="/Notes/Index"
+                               asp-route-hiveId="@h.Id"
+                               asp-route-apiaryId="@Model.ApiaryId">
+                                @h.Code
+                            </a>
+                        </td>
+
+                        <td>
+                            @(string.IsNullOrWhiteSpace(h.HiveType)
+                                                ? "-"
+                                                : h.HiveType)
+                        </td>
+
+                        <td>
+                            @(h.TotalKg == 0 && h.TotalL == 0
+                                                ? "-"
+                                                : $"{h.TotalKg} kg / {h.TotalL} l")
+                        </td>
+
+                        <td class="text-end">
+
+                            <a class="btn btn-sm btn-outline-primary"
+                               asp-page="/Harvest/Index"
+                               asp-route-apiaryId="@Model.ApiaryId"
+                               asp-route-hiveId="@h.Id">
+                                Medus
+                            </a>
+
+                            <a class="btn btn-sm btn-outline-secondary"
+                               asp-page="Edit"
+                               asp-route-id="@h.Id"
+                               asp-route-apiaryId="@Model.ApiaryId">
+                                Redaguoti
+                            </a>
+
+                            <a class="btn btn-sm btn-outline-danger"
+                               asp-page="Delete"
+                               asp-route-id="@h.Id"
+                               asp-route-apiaryId="@Model.ApiaryId">
+                                Trinti
+                            </a>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
 }
