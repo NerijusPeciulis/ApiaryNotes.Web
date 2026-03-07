@@ -197,4 +197,81 @@ public sealed class HarvestService
 
         return result;
     }
+
+    public async Task<(decimal kg, decimal l)> GetTotalsForApiaryByYearAndProductAsync(
+    string ownerUserId,
+    int apiaryId,
+    int year,
+    ProductType product)
+    {
+        var list = await db.HiveHarvests
+            .AsNoTracking()
+            .Where(x => x.OwnerUserId == ownerUserId
+                && x.Hive.ApiaryId == apiaryId
+                && x.Date.Year == year
+                && x.Product == product)
+            .ToListAsync();
+
+        var totalKg = list.Where(x => x.Unit == HarvestUnit.Kg).Sum(x => x.Amount);
+        var totalL = list.Where(x => x.Unit == HarvestUnit.L).Sum(x => x.Amount);
+
+        return (totalKg, totalL);
+    }
+
+    public Task<List<ApiaryHarvestStatRow>> GetApiaryStatsByYearAndProductAsync(
+    string ownerUserId,
+    int apiaryId,
+    int year,
+    ProductType product)
+    {
+        return db.HiveHarvests
+            .AsNoTracking()
+            .Where(x => x.OwnerUserId == ownerUserId
+                && x.Hive.ApiaryId == apiaryId
+                && x.Date.Year == year
+                && x.Product == product)
+            .GroupBy(x => new { x.HiveId, x.Hive.Code })
+            .Select(g => new ApiaryHarvestStatRow
+            {
+                HiveId = g.Key.HiveId,
+                HiveCode = g.Key.Code,
+                TotalKg = g.Where(x => x.Unit == HarvestUnit.Kg).Sum(x => x.Amount),
+                TotalL = g.Where(x => x.Unit == HarvestUnit.L).Sum(x => x.Amount),
+            })
+            .OrderByDescending(x => x.TotalKg)
+            .ThenBy(x => x.HiveCode)
+            .ToListAsync();
+    }
+
+    public async Task<List<MonthlyHarvestPoint>> GetMonthlyTotalsForApiaryByYearAndProductAsync(
+    string ownerUserId,
+    int apiaryId,
+    int year,
+    ProductType product)
+    {
+        var raw = await db.HiveHarvests
+            .AsNoTracking()
+            .Where(x => x.OwnerUserId == ownerUserId
+                && x.Hive.ApiaryId == apiaryId
+                && x.Date.Year == year
+                && x.Product == product)
+            .GroupBy(x => x.Date.Month)
+            .Select(g => new MonthlyHarvestPoint
+            {
+                Month = g.Key,
+                TotalKg = g.Where(x => x.Unit == HarvestUnit.Kg).Sum(x => x.Amount),
+                TotalL = g.Where(x => x.Unit == HarvestUnit.L).Sum(x => x.Amount),
+            })
+            .ToListAsync();
+
+        return Enumerable.Range(1, 12)
+            .Select(month => raw.FirstOrDefault(x => x.Month == month) ?? new MonthlyHarvestPoint
+            {
+                Month = month,
+                TotalKg = 0,
+                TotalL = 0
+            })
+            .OrderBy(x => x.Month)
+            .ToList();
+    }
 }

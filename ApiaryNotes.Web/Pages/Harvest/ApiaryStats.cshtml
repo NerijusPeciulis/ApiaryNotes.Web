@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Bityno statistika";
 }
+@using ApiaryNotes.Web.Domain
 
 <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-3">
     <div>
@@ -45,20 +46,35 @@
             }
         </select>
     </div>
-
+    <div class="col-auto">
+        <label for="product" class="form-label">Produktas</label>
+        <select id="product" name="product" class="form-select">
+            @foreach (var product in Enum.GetValues<ProductType>())
+            {
+                if (product == Model.SelectedProduct)
+                {
+                    <option value="@product" selected>@product</option>
+                }
+                else
+                {
+                    <option value="@product">@product</option>
+                }
+            }
+        </select>
+    </div>
     <div class="col-auto">
         <button type="submit" class="btn btn-primary">Rodyti</button>
     </div>
 </form>
 
 <div class="alert alert-success mb-3">
-    <strong>@Model.SelectedYear m. viso bityne išsukta:</strong>
+    <strong>@Model.SelectedYear m. viso bityne produkto @Model.SelectedProduct:</strong>
     @Model.TotalKg.ToString("0.##") kg / @Model.TotalL.ToString("0.##") l
 </div>
 
 <div class="card shadow-sm mb-4">
     <div class="card-body">
-        <h5 class="card-title">@Model.SelectedYear m. medaus dinamika pagal mėnesius</h5>
+        <h5 class="card-title">@Model.SelectedYear m. produkto @Model.SelectedProduct dinamika pagal mėnesius</h5>
         <canvas id="harvestChart" height="110"></canvas>
     </div>
 </div>
@@ -102,7 +118,8 @@ else
                                asp-page="/Harvest/Index"
                                asp-route-apiaryId="@Model.ApiaryId"
                                asp-route-hiveId="@row.HiveId"
-                               asp-route-year="@Model.SelectedYear">
+                               asp-route-year="@Model.SelectedYear"
+                               asp-route-product="@Model.SelectedProduct">
                                 Atidaryti
                             </a>
                         </td>

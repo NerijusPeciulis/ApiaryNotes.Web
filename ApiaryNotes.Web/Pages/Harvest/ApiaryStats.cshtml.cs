@@ -1,5 +1,6 @@
 ﻿using ApiaryNotes.Web.Application.Services;
 using ApiaryNotes.Web.Data;
+using ApiaryNotes.Web.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -32,11 +33,16 @@ public class ApiaryStatsModel : PageModel
     [BindProperty(SupportsGet = true)]
     public int? Year { get; set; }
 
+    [BindProperty(SupportsGet = true)]
+    public ProductType? Product { get; set; }
+
     public string ApiaryName { get; private set; } = string.Empty;
 
     public List<int> AvailableYears { get; private set; } = new();
 
     public int SelectedYear { get; private set; }
+
+    public ProductType SelectedProduct { get; private set; } = ProductType.Honey;
 
     public decimal TotalKg { get; private set; }
     public decimal TotalL { get; private set; }
@@ -46,9 +52,7 @@ public class ApiaryStatsModel : PageModel
     public List<MonthlyHarvestPoint> MonthlyPoints { get; private set; } = new();
 
     public string MonthlyLabelsJson { get; private set; } = "[]";
-
     public string MonthlyKgDataJson { get; private set; } = "[]";
-
     public string MonthlyLDataJson { get; private set; } = "[]";
 
     public ApiaryHarvestStatRow? BestHive =>
@@ -88,19 +92,34 @@ public class ApiaryStatsModel : PageModel
                 : AvailableYears.First();
         }
 
-        var totals = await harvestService.GetTotalsForApiaryByYearAsync(userId, ApiaryId, SelectedYear);
+        SelectedProduct = Product ?? ProductType.Honey;
+
+        var totals = await harvestService.GetTotalsForApiaryByYearAndProductAsync(
+            userId,
+            ApiaryId,
+            SelectedYear,
+            SelectedProduct);
+
         TotalKg = totals.kg;
         TotalL = totals.l;
 
-        Rows = await harvestService.GetApiaryStatsByYearAsync(userId, ApiaryId, SelectedYear);
+        Rows = await harvestService.GetApiaryStatsByYearAndProductAsync(
+            userId,
+            ApiaryId,
+            SelectedYear,
+            SelectedProduct);
 
-        MonthlyPoints = await harvestService.GetMonthlyTotalsForApiaryAsync(userId, ApiaryId, SelectedYear);
+        MonthlyPoints = await harvestService.GetMonthlyTotalsForApiaryByYearAndProductAsync(
+            userId,
+            ApiaryId,
+            SelectedYear,
+            SelectedProduct);
 
         var monthLabels = new[]
         {
-    "Sausis", "Vasaris", "Kovas", "Balandis", "Gegužė", "Birželis",
-    "Liepa", "Rugpjūtis", "Rugsėjis", "Spalis", "Lapkritis", "Gruodis"
-};
+            "Sausis", "Vasaris", "Kovas", "Balandis", "Gegužė", "Birželis",
+            "Liepa", "Rugpjūtis", "Rugsėjis", "Spalis", "Lapkritis", "Gruodis"
+        };
 
         MonthlyLabelsJson = JsonSerializer.Serialize(monthLabels);
         MonthlyKgDataJson = JsonSerializer.Serialize(MonthlyPoints.Select(x => x.TotalKg));

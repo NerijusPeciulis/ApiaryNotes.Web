@@ -1,0 +1,110 @@
+﻿@page
+@model ApiaryNotes.Web.Pages.Finance.IndexModel
+@{
+    ViewData["Title"] = "Finansai";
+}
+
+<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-3">
+    <div>
+        <h2 class="mb-1">Finansai</h2>
+        <div class="text-muted">
+            Pajamos, sąnaudos ir pelnas
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-success"
+           asp-page="Create">
+            + Naujas įrašas
+        </a>
+    </div>
+</div>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-auto">
+        <label for="year" class="form-label">Metai</label>
+        <select id="year" name="year" class="form-select">
+            @foreach (var year in Model.AvailableYears)
+            {
+                if (year == Model.SelectedYear)
+                {
+                    <option value="@year" selected>@year</option>
+                }
+                else
+                {
+                    <option value="@year">@year</option>
+                }
+            }
+        </select>
+    </div>
+
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Rodyti</button>
+    </div>
+</form>
+
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Pajamos</h5>
+                <div class="fs-4">@Model.TotalIncome.ToString("0.##") €</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Sąnaudos</h5>
+                <div class="fs-4">@Model.TotalExpense.ToString("0.##") €</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Pelnas</h5>
+                <div class="fs-4">@Model.Profit.ToString("0.##") €</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.Items.Count == 0)
+{
+    <div class="alert alert-warning">
+        Pasirinktais metais finansinių įrašų nėra.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Tipas</th>
+                    <th>Kategorija</th>
+                    <th>Pavadinimas</th>
+                    <th>Bitynas</th>
+                    <th>Suma</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var x in Model.Items)
+                {
+                    <tr>
+                        <td>@x.Date.ToString("yyyy-MM-dd")</td>
+                        <td>@x.Type</td>
+                        <td>@x.Category</td>
+                        <td>@x.Title</td>
+                        <td>@(x.Apiary is null ? "-" : x.Apiary.Name)</td>
+                        <td>@x.Amount.ToString("0.##") €</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

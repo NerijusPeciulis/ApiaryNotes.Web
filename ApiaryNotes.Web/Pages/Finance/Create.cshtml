@@ -1,0 +1,61 @@
+﻿@page
+@model ApiaryNotes.Web.Pages.Finance.CreateModel
+@{
+    ViewData["Title"] = "Naujas finansų įrašas";
+}
+
+<h1>Naujas finansų įrašas</h1>
+
+<form method="post">
+    <div class="text-danger" asp-validation-summary="All"></div>
+
+    <div class="mb-3">
+        <label class="form-label">Data</label>
+        <input class="form-control" asp-for="Input.Date" type="date" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Tipas</label>
+        <select class="form-select"
+                asp-for="Input.Type"
+                asp-items="Html.GetEnumSelectList<ApiaryNotes.Web.Domain.FinanceEntryType>()">
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Kategorija</label>
+        <select class="form-select"
+                asp-for="Input.Category"
+                asp-items="Html.GetEnumSelectList<ApiaryNotes.Web.Domain.FinanceCategory>()">
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Pavadinimas</label>
+        <input class="form-control" asp-for="Input.Title" />
+        <span class="text-danger" asp-validation-for="Input.Title"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Suma (€)</label>
+        <input class="form-control" asp-for="Input.Amount" type="number" step="0.01" />
+        <span class="text-danger" asp-validation-for="Input.Amount"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Bitynas</label>
+        <select class="form-select" asp-for="Input.ApiaryId" asp-items="Model.ApiaryOptions"></select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Pastaba</label>
+        <input class="form-control" asp-for="Input.Note" />
+    </div>
+
+    <button class="btn btn-primary" type="submit">Išsaugoti</button>
+    <a class="btn btn-secondary" asp-page="Index">Atgal</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -23,6 +23,7 @@ public partial class Program
         builder.Services.AddScoped<HiveService>();
         builder.Services.AddScoped<NoteService>();
         builder.Services.AddScoped<ApiaryNotes.Web.Application.Services.HarvestService>();
+        builder.Services.AddScoped<FinanceService>();
 
         var app = builder.Build();
 
