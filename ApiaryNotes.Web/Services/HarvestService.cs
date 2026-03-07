@@ -11,13 +11,13 @@ public sealed class HarvestService
     public HarvestService(ApplicationDbContext db) => this.db = db;
 
     public async Task<HiveHarvest> CreateAsync(
-    string ownerUserId,
-    int hiveId,
-    DateOnly date,
-    ProductType product,
-    decimal amount,
-    HarvestUnit unit,
-    string? note)
+        string ownerUserId,
+        int hiveId,
+        DateOnly date,
+        ProductType product,
+        decimal amount,
+        HarvestUnit unit,
+        string? note)
     {
         if (string.IsNullOrWhiteSpace(ownerUserId))
             throw new ArgumentException("Owner user id is required.", nameof(ownerUserId));
@@ -95,7 +95,7 @@ public sealed class HarvestService
         await db.SaveChangesAsync();
     }
 
-    public async Task<(decimal kg, decimal l)> GetTotalsForHiveAsync(string ownerUserId, int hiveId)
+    public async Task<(decimal kg, decimal l, decimal g)> GetTotalsForHiveAsync(string ownerUserId, int hiveId)
     {
         var list = await db.HiveHarvests
             .AsNoTracking()
@@ -104,11 +104,12 @@ public sealed class HarvestService
 
         var totalKg = list.Where(x => x.Unit == HarvestUnit.Kg).Sum(x => x.Amount);
         var totalL = list.Where(x => x.Unit == HarvestUnit.L).Sum(x => x.Amount);
+        var totalG = list.Where(x => x.Unit == HarvestUnit.G).Sum(x => x.Amount);
 
-        return (totalKg, totalL);
+        return (totalKg, totalL, totalG);
     }
 
-    public async Task<(decimal kg, decimal l)> GetTotalsForHiveByYearAsync(string ownerUserId, int hiveId, int year)
+    public async Task<(decimal kg, decimal l, decimal g)> GetTotalsForHiveByYearAsync(string ownerUserId, int hiveId, int year)
     {
         var list = await db.HiveHarvests
             .AsNoTracking()
@@ -119,8 +120,9 @@ public sealed class HarvestService
 
         var totalKg = list.Where(x => x.Unit == HarvestUnit.Kg).Sum(x => x.Amount);
         var totalL = list.Where(x => x.Unit == HarvestUnit.L).Sum(x => x.Amount);
+        var totalG = list.Where(x => x.Unit == HarvestUnit.G).Sum(x => x.Amount);
 
-        return (totalKg, totalL);
+        return (totalKg, totalL, totalG);
     }
 
     public Task<List<int>> GetYearsForApiaryAsync(string ownerUserId, int apiaryId)
@@ -134,7 +136,7 @@ public sealed class HarvestService
             .ToListAsync();
     }
 
-    public async Task<(decimal kg, decimal l)> GetTotalsForApiaryByYearAsync(string ownerUserId, int apiaryId, int year)
+    public async Task<(decimal kg, decimal l, decimal g)> GetTotalsForApiaryByYearAsync(string ownerUserId, int apiaryId, int year)
     {
         var list = await db.HiveHarvests
             .AsNoTracking()
@@ -145,8 +147,9 @@ public sealed class HarvestService
 
         var totalKg = list.Where(x => x.Unit == HarvestUnit.Kg).Sum(x => x.Amount);
         var totalL = list.Where(x => x.Unit == HarvestUnit.L).Sum(x => x.Amount);
+        var totalG = list.Where(x => x.Unit == HarvestUnit.G).Sum(x => x.Amount);
 
-        return (totalKg, totalL);
+        return (totalKg, totalL, totalG);
     }
 
     public Task<List<ApiaryHarvestStatRow>> GetApiaryStatsByYearAsync(string ownerUserId, int apiaryId, int year)
@@ -163,6 +166,7 @@ public sealed class HarvestService
                 HiveCode = g.Key.Code,
                 TotalKg = g.Where(x => x.Unit == HarvestUnit.Kg).Sum(x => x.Amount),
                 TotalL = g.Where(x => x.Unit == HarvestUnit.L).Sum(x => x.Amount),
+                TotalG = g.Where(x => x.Unit == HarvestUnit.G).Sum(x => x.Amount),
             })
             .OrderByDescending(x => x.TotalKg)
             .ThenBy(x => x.HiveCode)
@@ -182,6 +186,7 @@ public sealed class HarvestService
                 Month = g.Key,
                 TotalKg = g.Where(x => x.Unit == HarvestUnit.Kg).Sum(x => x.Amount),
                 TotalL = g.Where(x => x.Unit == HarvestUnit.L).Sum(x => x.Amount),
+                TotalG = g.Where(x => x.Unit == HarvestUnit.G).Sum(x => x.Amount),
             })
             .ToListAsync();
 
@@ -191,6 +196,7 @@ public sealed class HarvestService
                 Month = month,
                 TotalKg = 0,
                 TotalL = 0,
+                TotalG = 0,
             })
             .OrderBy(x => x.Month)
             .ToList();
@@ -198,11 +204,11 @@ public sealed class HarvestService
         return result;
     }
 
-    public async Task<(decimal kg, decimal l)> GetTotalsForApiaryByYearAndProductAsync(
-    string ownerUserId,
-    int apiaryId,
-    int year,
-    ProductType product)
+    public async Task<(decimal kg, decimal l, decimal g)> GetTotalsForApiaryByYearAndProductAsync(
+        string ownerUserId,
+        int apiaryId,
+        int year,
+        ProductType product)
     {
         var list = await db.HiveHarvests
             .AsNoTracking()
@@ -214,15 +220,16 @@ public sealed class HarvestService
 
         var totalKg = list.Where(x => x.Unit == HarvestUnit.Kg).Sum(x => x.Amount);
         var totalL = list.Where(x => x.Unit == HarvestUnit.L).Sum(x => x.Amount);
+        var totalG = list.Where(x => x.Unit == HarvestUnit.G).Sum(x => x.Amount);
 
-        return (totalKg, totalL);
+        return (totalKg, totalL, totalG);
     }
 
     public Task<List<ApiaryHarvestStatRow>> GetApiaryStatsByYearAndProductAsync(
-    string ownerUserId,
-    int apiaryId,
-    int year,
-    ProductType product)
+        string ownerUserId,
+        int apiaryId,
+        int year,
+        ProductType product)
     {
         return db.HiveHarvests
             .AsNoTracking()
@@ -237,6 +244,7 @@ public sealed class HarvestService
                 HiveCode = g.Key.Code,
                 TotalKg = g.Where(x => x.Unit == HarvestUnit.Kg).Sum(x => x.Amount),
                 TotalL = g.Where(x => x.Unit == HarvestUnit.L).Sum(x => x.Amount),
+                TotalG = g.Where(x => x.Unit == HarvestUnit.G).Sum(x => x.Amount),
             })
             .OrderByDescending(x => x.TotalKg)
             .ThenBy(x => x.HiveCode)
@@ -244,10 +252,10 @@ public sealed class HarvestService
     }
 
     public async Task<List<MonthlyHarvestPoint>> GetMonthlyTotalsForApiaryByYearAndProductAsync(
-    string ownerUserId,
-    int apiaryId,
-    int year,
-    ProductType product)
+        string ownerUserId,
+        int apiaryId,
+        int year,
+        ProductType product)
     {
         var raw = await db.HiveHarvests
             .AsNoTracking()
@@ -261,6 +269,7 @@ public sealed class HarvestService
                 Month = g.Key,
                 TotalKg = g.Where(x => x.Unit == HarvestUnit.Kg).Sum(x => x.Amount),
                 TotalL = g.Where(x => x.Unit == HarvestUnit.L).Sum(x => x.Amount),
+                TotalG = g.Where(x => x.Unit == HarvestUnit.G).Sum(x => x.Amount),
             })
             .ToListAsync();
 
@@ -269,7 +278,8 @@ public sealed class HarvestService
             {
                 Month = month,
                 TotalKg = 0,
-                TotalL = 0
+                TotalL = 0,
+                TotalG = 0
             })
             .OrderBy(x => x.Month)
             .ToList();

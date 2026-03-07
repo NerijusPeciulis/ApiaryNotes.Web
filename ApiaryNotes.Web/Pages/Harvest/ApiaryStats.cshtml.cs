@@ -46,6 +46,7 @@ public class ApiaryStatsModel : PageModel
 
     public decimal TotalKg { get; private set; }
     public decimal TotalL { get; private set; }
+    public decimal TotalG { get; private set; }
 
     public List<ApiaryHarvestStatRow> Rows { get; private set; } = new();
 
@@ -54,6 +55,7 @@ public class ApiaryStatsModel : PageModel
     public string MonthlyLabelsJson { get; private set; } = "[]";
     public string MonthlyKgDataJson { get; private set; } = "[]";
     public string MonthlyLDataJson { get; private set; } = "[]";
+    public string MonthlyGDataJson { get; private set; } = "[]";
 
     public ApiaryHarvestStatRow? BestHive =>
         Rows.OrderByDescending(x => x.TotalKg).FirstOrDefault();
@@ -102,6 +104,7 @@ public class ApiaryStatsModel : PageModel
 
         TotalKg = totals.kg;
         TotalL = totals.l;
+        TotalG = totals.g;
 
         Rows = await harvestService.GetApiaryStatsByYearAndProductAsync(
             userId,
@@ -124,6 +127,7 @@ public class ApiaryStatsModel : PageModel
         MonthlyLabelsJson = JsonSerializer.Serialize(monthLabels);
         MonthlyKgDataJson = JsonSerializer.Serialize(MonthlyPoints.Select(x => x.TotalKg));
         MonthlyLDataJson = JsonSerializer.Serialize(MonthlyPoints.Select(x => x.TotalL));
+        MonthlyGDataJson = JsonSerializer.Serialize(MonthlyPoints.Select(x => x.TotalG));
 
         return Page();
     }

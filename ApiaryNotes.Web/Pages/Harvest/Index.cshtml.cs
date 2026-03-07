@@ -45,6 +45,7 @@ public class IndexModel : PageModel
 
     public decimal TotalKg { get; private set; }
     public decimal TotalL { get; private set; }
+    public decimal TotalG { get; private set; }
 
     public List<int> AvailableYears { get; private set; } = new();
 
@@ -119,6 +120,10 @@ public class IndexModel : PageModel
 
         TotalL = Items
             .Where(x => x.Unit == HarvestUnit.L)
+            .Sum(x => x.Amount);
+
+        TotalG = Items
+            .Where(x => x.Unit == HarvestUnit.G)
             .Sum(x => x.Amount);
 
         return Page();

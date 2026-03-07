@@ -1,4 +1,6 @@
-﻿namespace ApiaryNotes.Web.Domain;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ApiaryNotes.Web.Domain;
 
 public class HiveHarvest
 {
@@ -24,8 +26,14 @@ public class HiveHarvest
 
 public enum HarvestUnit
 {
+    [Display(Name = "kg")]
     Kg = 1,
+
+    [Display(Name = "l")]
     L = 2,
+
+    [Display(Name = "g")]
+    G = 3,
 }
 
 public enum ProductType
